@@ -1,0 +1,14 @@
+[project]
+name = "Multilevel_Gerrymandering"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "binary-ensemble>=0.3.0",
+    "click>=8.3.1",
+    "geopandas>=1.1.2",
+    "gerrychain>=0.3.2",
+    "ipykernel>=7.1.0",
+    "ipywidgets>=8.1.8",
+    "jsonlines>=4.0.0",
+    "tqdm>=4.67.1",
+]
