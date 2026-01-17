@@ -18,8 +18,8 @@ for random_seed in {1..5}; do
                             --cpus-per-task=2 \
                             --mem=2G \
                             --time=4-00:00:00 \
-                            --error="syn_exps_${num_r_units}_${map_number}_${block_size}_${experiment_type}_${init_part}_${random_seed}.log" \
-                            --output="syn_output_${num_r_units}_${map_number}_${block_size}_${experiment_type}_${init_part}_${random_seed}.out" \
+                            --error="syn_error_files/syn_exps_r_${num_r_units}_map_${map_number}_block_size_${block_size}_${experiment_type}_init_part_${init_part}_seed_${random_seed}.log" \
+                            --output="syn_output_files/syn_output_r_${num_r_units}_map_${map_number}_block_size_${block_size}_${experiment_type}_init_part_${init_part}_seed_${random_seed}.out" \
                             --wrap="PATHONHASHSEED=0 uv run ${TOP_DIR}/syn_exps_cli.py --num-r-units $num_r_units --map-number $map_number --block-size $block_size --experiment-type $experiment_type --init-part $init_part --random-seed $random_seed --total-steps 20000"
                     done
                 done

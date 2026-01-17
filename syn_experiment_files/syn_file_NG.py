@@ -51,7 +51,7 @@ def run_experiment_ng(num_r_units, map_number, block_size, init_part, random_see
     # Load data from underlying map as graph
     # Will use this to put vote totals onto block graph
     underlying_map = (
-        f"{SCRIPT_DIR}/../syn_unit_maps/map_.jsons/"
+        f"{SCRIPT_DIR}/syn_unit_maps/map_.jsons/"
         f"r_units_{num_r_units}_map_{map_number}.json"
     )
     underlying_graph = Graph.from_json(underlying_map)
@@ -65,17 +65,17 @@ def run_experiment_ng(num_r_units, map_number, block_size, init_part, random_see
 
         save_assignment_results_to = (
             f"{SCRIPT_DIR}/../output_ensembles/NG/r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
-            f"sample_{sample}/init_part{init_part}_random_seed_{random_seed}_burst_length_20_steps_{total_steps}_assignment.ben"
+            f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_burst_length_20_steps_{total_steps}_assignment.ben"
         )
         save_updaters_results_to = (
             f"{SCRIPT_DIR}/../output_stats/NG/r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
-            f"sample_{sample}/init_part{init_part}_random_seed_{random_seed}_burst_length_20_steps_{total_steps}_updaters.jsonl"
+            f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_burst_length_20_steps_{total_steps}_updaters.jsonl"
         )
         os.makedirs(os.path.dirname(save_assignment_results_to), exist_ok=True)
         os.makedirs(os.path.dirname(save_updaters_results_to), exist_ok=True)
 
         block_data = (
-            f"{SCRIPT_DIR}/../syn_building_block_partitions/neutral/"
+            f"{SCRIPT_DIR}/syn_building_block_partitions/neutral/"
             f"block_size_{block_size}/sample_{sample}.json"
         )
 
@@ -103,7 +103,7 @@ def run_experiment_ng(num_r_units, map_number, block_size, init_part, random_see
 
         # Updaters
         my_updaters = {
-            "population": updaters.Tally("group_pop",alias="population"),
+            "population": updaters.Tally("population",alias="population"),
             "election": Election("election", {"D": "D", "R": "R"}),
             "R_tally": updaters.Tally("R",alias="R_tally"),
             "D_tally": updaters.Tally("D",alias="D_tally"),
