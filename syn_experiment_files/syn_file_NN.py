@@ -10,6 +10,8 @@ import ast
 import os
 from pyben import PyBenEncoder
 
+SCRIPT_FILE_PATH = os.path.abspath(__file__)
+SCRIPT_DIR = os.path.dirname(SCRIPT_FILE_PATH)
 
 def run_experiment_nn(num_r_units, map_number, block_size, init_part, random_seed, total_steps):
     """Run experiment where neither the building blocks nor the resulting maps are gerrymandered.

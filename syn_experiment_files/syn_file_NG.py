@@ -10,6 +10,9 @@ import os
 from pyben import PyBenEncoder
 import jsonlines as jl
 
+SCRIPT_FILE_PATH = os.path.abspath(__file__)
+SCRIPT_DIR = os.path.dirname(SCRIPT_FILE_PATH)
+
 def safe_reward_partial_dist(part, minority_perc_col, threshold):
     """Gingleator score function that rewards all opportunity districts plus partial credit for
     the next highest district below threshold.
