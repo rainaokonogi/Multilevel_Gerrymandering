@@ -56,6 +56,8 @@ def main(
         run_experiment_gn(num_r_units, map_number, block_size, init_part, random_seed, total_steps)
     elif experiment_type == "NN":
         run_experiment_nn(num_r_units, map_number, block_size, init_part, random_seed, total_steps)
+    elif experiment_type == "GGopp":
+        run_experiment_nn(num_r_units, map_number, block_size, init_part, random_seed, total_steps)
 
 if __name__ == "__main__":
     main()

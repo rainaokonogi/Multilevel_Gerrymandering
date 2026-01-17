@@ -6,7 +6,7 @@ TOP_DIR="$(realpath "${SCRIPT_DIR}/..")"
 echo "started"
 for random_seed in {1..5}; do
     for init_part in {1..3}; do
-        for experiment_type in "GG" "NG" "GN" "NN"; do
+        for experiment_type in "GG" "NG" "GN" "NN" "GGopp"; do
             for map_number in {1..3}; do
                 for num_r_units in 72 86 58; do
                     for block_size in 2 3 4 6; do
