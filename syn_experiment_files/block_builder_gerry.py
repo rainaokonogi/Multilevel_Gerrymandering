@@ -152,7 +152,7 @@ def main():
                     # Save building block file
                     save_to_file = (
                         f"{SCRIPT_DIR}/../syn_files/syn_building_block_partitions/gerry/"
-                        f"r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/sample_{i+1}.json"
+                        f"r_units_{num_r_units}_map_{map_number}_burst_length_20/block_size_{block_size}/sample_{i+1}.json"
                     )
                     os.makedirs(os.path.dirname(save_to_file), exist_ok=True)
                     gerry_subgraph.to_json(save_to_file)
