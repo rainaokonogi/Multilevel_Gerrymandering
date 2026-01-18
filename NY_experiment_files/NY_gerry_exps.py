@@ -60,10 +60,15 @@ def NY_gerry_exp(block_type, election, party, init_part, random_seed, total_step
     # For use later when saving results
     graph_node_order = list(dual_graph.nodes)
 
-    save_assignment_results_to = f"{SCRIPT_DIR}/../NY_output_ensembles/{block_type}/gerry_toward_{party}_using_{election}_data/"
-                                f"init_part_{init_part}_random_seed_{random_seed}_burst_length_20_{total_steps}_steps_assignment.ben"
-    save_updaters_results_to = f"{SCRIPT_DIR}/../NY_output_ensembles/{block_type}/gerry_toward_{party}_using_{election}_data/"
-                                f"init_part_{init_part}_random_seed_{random_seed}_burst_length_20_{total_steps}_steps_updaters.jsonl"
+    save_assignment_results_to = (
+        f"{SCRIPT_DIR}/../NY_output_ensembles/{block_type}/gerry_toward_{party}_using_{election}_data/"
+        f"init_part_{init_part}_random_seed_{random_seed}_burst_length_20_{total_steps}_steps_assignment.ben"
+    )
+    save_updaters_results_to = (
+        f"{SCRIPT_DIR}/../NY_output_ensembles/{block_type}/gerry_toward_{party}_using_{election}_data/"
+        f"init_part_{init_part}_random_seed_{random_seed}_burst_length_20_{total_steps}_steps_updaters.jsonl"
+    )
+                                
     os.makedirs(os.path.dirname(save_assignment_results_to), exist_ok=True)
     os.makedirs(os.path.dirname(save_updaters_results_to), exist_ok=True)
 
