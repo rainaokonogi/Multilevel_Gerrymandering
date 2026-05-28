@@ -4,27 +4,31 @@ import json
 from tqdm import tqdm
 import os
 
-print("CWD IS:", os.getcwd())
-print("OUTPUT DIR RESOLVED:", Path("./saved_histograms_2").resolve())
+CURRENT_WORKING_DIRECTORY = Path.cwd()
 
-# Configuration
 dir_paths = {
-    "blockgroups": Path("/share/duchin/raina/REPLICATION_REPO/MT_results/neutral_output_updaters/blockgroups")
-    # "tracts": Path("/share/duchin/raina/REPLICATION_REPO/MT_results/neutral_output_updaters/tracts")
-    # "vtds": Path("/share/duchin/raina/REPLICATION_REPO/MT_results/neutral_output_updaters/vtds")
+    "blockgroups": Path(f"{CURRENT_WORKING_DIRECTORY}/MT_results/neutral_output_updaters/blockgroups")
+    "tracts": Path(f"{CURRENT_WORKING_DIRECTORY}/MT_results/neutral_output_updaters/tracts")
+    "vtds": Path(f"{CURRENT_WORKING_DIRECTORY}/MT_results/neutral_output_updaters/vtds")
 }
+
+for units, units_path in dir_paths.items():
+    if not units_path.exists():
+        raise FileNotFoundError(
+            f"Montana {units} results file not found.\n"
+            "This data is available from the authors upon request.\n"
+        )
 
 max_seats = 50
 bins = np.arange(0, 52, 1)
 
-output_dir = f"/share/duchin/raina/REPLICATION_REPO/MT_files/saved_hists_MT/"
+output_dir = f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_data_analysis_replicated/neutral_histogram_data/"
 os.makedirs(output_dir, exist_ok=True)
 
-def accumulate_histogram_for_directory(dir_path, bins):
+def accumulate_histogram(dir_path, bins):
     counts = np.zeros(len(bins) - 1)
 
     files = list(dir_path.glob("*.jsonl"))
-    print(f"{dir_path.name}: {len(files)} files")
 
     for file_path in tqdm(files, desc=f"{dir_path.name} files", total=len(files)):
         with open(file_path, "r") as f:
@@ -33,8 +37,6 @@ def accumulate_histogram_for_directory(dir_path, bins):
                 values = np.array(data["Pres seats won"]["D"])
                 counts += np.histogram(values, bins=bins)[0]
 
-        print(counts)
-        print(len(counts))
     return counts
 
 # Compute one histogram per directory
@@ -49,5 +51,3 @@ for name, counts in histograms.items():
     out_path = output_dir + f"{name}_pres_histogram.npy"
     np.save(out_path, counts)
     print(f"Saved: {out_path}")
-
-print("\nDone. Saved 3 aggregated histograms.")

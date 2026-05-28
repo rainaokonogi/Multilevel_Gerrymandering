@@ -8,8 +8,20 @@ import seaborn as sns
 
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
-labels_dict = {"vtds": "Precincts", "blockgroups": "Block Groups", "tracts": "Tracts"}
-colors_dict = {"vtds": "#76C0D8", "blockgroups": "#C777DB", "tracts": "#FFC787"}
+units_dict = {
+    "vtds": {
+        "label": "Precincts",
+        "color": "#76C0D8"
+    },
+    "blockgroups": {
+        "label": "Block Groups",
+        "color": "#C777DB"
+    },
+    "tracts": {
+        "label": "Tracts",
+        "color": "#FFC787"
+    }
+}
 
 for block_type in ["vtds", "blockgroups", "tracts"]:
     graph = Graph.from_json(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_files/dual_graphs/{block_type}_dual_graph.json")
@@ -19,12 +31,11 @@ for block_type in ["vtds", "blockgroups", "tracts"]:
     sns.set(style="whitegrid")
 
     bins = bins = np.linspace(0, 10000, 26)
-    block_colors = ["#C777DB", "#76C0D8", "#FFC787"]
 
     plt.figure(figsize=(10, 6))
     sns.histplot(pop,
-                color=colors_dict[block_type],
-                label=labels_dict[block_type],
+                color=units_dict[block_type][color],
+                label=units_dict[block_type][label],
                 kde=False,
                 bins=bins)
     plt.xticks(fontsize=20)
