@@ -103,7 +103,7 @@ def make_image():
     plt.tight_layout()
 
     plt.savefig(
-        f"{CURRENT_WORKING_DIRECTORY}/MT_search_images/MT_pres_search.png",
+        f"{CURRENT_WORKING_DIRECTORY}/image_replication/MT_search_images/MT_pres_search.png",
         bbox_inches="tight",
         dpi=600
     )
