@@ -26,7 +26,7 @@ def main():
     }
 
 def main ():
-    """Creates, for each of the three census units in MT, a histogram of the populations in those units.
+    """Creates, for each of the three census units in NY, a histogram of the populations in those units.
     """
     for block_type in ["vtds", "blockgroups", "tracts"]:
         graph = Graph.from_json(f"{CURRENT_WORKING_DIRECTORY}/NY_files/dual_graphs/{block_type}_dual_graph.json")

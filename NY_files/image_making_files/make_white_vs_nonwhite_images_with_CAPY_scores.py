@@ -118,11 +118,11 @@ def main():
         gdf = gdf.to_crs(epsg=2263)
         centroids = gdf.geometry.centroid
 
-        # Build GEOID → position dictionary from gdf
+        # Build GEOID to position dictionary from gdf
         gdf_geoid_to_pos = {row["GEOID"]: (row.geometry.centroid.x, row.geometry.centroid.y)
                             for _, row in gdf.iterrows()}
 
-        # Build node → position mapping
+        # Build node to position mapping
         # Check if nodes have 'GEOID' attribute
         pos = {}
         for node in graph.nodes:

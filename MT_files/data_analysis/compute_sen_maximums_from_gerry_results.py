@@ -2,83 +2,71 @@ import json
 from pathlib import Path
 import os
 
-from pathlib import Path
-import numpy as np
-import json
-from tqdm import tqdm
-import os
-
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
-dir_paths = {
-    "vtds": Path(f"{CURRENT_WORKING_DIRECTORY}/MT_results/gerry_toward_D/vtds")
-    "blockgroups": Path(f"{CURRENT_WORKING_DIRECTORY}/MT_results/gerry_toward_D/blockgroups")
-    "tracts": Path(f"{CURRENT_WORKING_DIRECTORY}/MT_results/gerry_toward_D/output_updaters/tracts")
-}
+def main():
+    """Performs data analysis on some of the Montana experiment results.
+    Specifically, looks at the short bursts optimization runs gerrymandered toward Democrats using Sen2022 data
+    and saves the maximum number of seats won by Democrats in any plan for each chain.
+    """
+    # Root folder
+    root = Path(f"{CURRENT_WORKING_DIRECTORY}/REP_DATA/Montana_results/gerry/gerry_updaters")
 
-for units, units_path in dir_paths.items():
-    if not units_path.exists():
+    if not root.exists():
         raise FileNotFoundError(
-            f"Montana {units} results file not found.\n"
+            f"Montana gerrymandered results folder not found.\n"
             "This data is available from the author upon request.\n"
         )
 
-# Root folder
-root = Path("MT_outputs_3/output_updaters_gerry")
+    # Output folder
+    output_file = f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data_(replicated)/gerry_max_and_min_values/gerry_toward_D_using_sen_data.jsonl"
+    os.makedirs(output_file, exist_ok=True)
 
-# Output folder
-output_root = root / "min_seats" / "gerry_R_POV"
-os.makedirs(output_root, exist_ok=True)
+    # Find maximums for all three types of census units
+    for geo_type in ["vtds", "blockgroups", "tracts"]:
 
-# Iterate over geographic types
-for geo_type in ["vtds", "blockgroups", "tracts"]:
+        geo_path = root / geo_type
+        for exp_folder in geo_path.iterdir():
 
-    geo_path = root / geo_type
-    for exp_folder in geo_path.iterdir():
-        print(exp_folder)
+            # Access data from experiment gerrymandering toward Democrats using Sen2022 data
+            if not exp_folder.is_dir():
+                print("skipping; not a directory")
+                continue
+            exp_name = exp_folder.name
+            if exp_name != "gerry_toward_D_using_sen_data":
+                continue
 
-        if not exp_folder.is_dir():
-            print("skipping")
-            continue
-        exp_name = exp_folder.name
-        if exp_name == "gerry_toward_D_using_pres_data":
-            continue
-        elif exp_name == "gerry_toward_D_using_sen_data":
-            continue
-        elif exp_name == "gerry_toward_R_using_sen_data":
-            continue
+            max_sen_values = []
 
-        # Output folder
-        pres_file = output_root / f"{geo_type}_{exp_name}_sen.jsonl"
+            jsonl_files = sorted(exp_folder.glob("*.jsonl"))
 
-        min_pres_values = []
-        min_sen_values = []
+            for i, f in enumerate(jsonl_files, start=1):
+                max_sen_value = None
 
-        # Collect all .jsonl files and sort
-        jsonl_files = sorted(exp_folder.glob("*.jsonl"))
+                with f.open() as infile:
+                    for line in infile:
+                        plan = json.loads(line)
+                        
+                        # For each step in chain, check if the number of seats won by Dems is the new maximum
+                        sen_seats = plan.get("Sen seats won", {}).get("D", None)
+                        if sen_seats is not None:
+                            if max_sen_value is None or sen_seats > max_sen_value:
+                                max_sen_value = sen_seats
 
-        for i, f in enumerate(jsonl_files, start=1):
-            min_pres_value = None
-            min_sen_value = None
+                # Save the max val for each individual chain
+                max_sen_values.append(max_sen_value)
 
-            with f.open() as infile:
-                for line in infile:
-                    plan = json.loads(line)
+                # Print progress
+                print(f"  [{i}/{len(jsonl_files)}] {f.name} -> max_sen: {max_sen_value}")
 
-                    sen_seats = plan.get("Sen seats won", {}).get("D", None)
-                    if sen_seats is not None:
-                        if max_sen_value is None or sen_seats > max_sen_value:
-                            max_sen_value = sen_seats
+            # Save results
+            record = {
+                "Block type": geo_type,
+                "Max Vals": max_sen_values
+            }
 
-            max_sen_values.append(max_sen_value)
+            with open(output_file, "a") as f:
+                json.dump(record, f)
+                f.write("\n")
 
-            # Print progress
-            print(f"  [{i}/{len(jsonl_files)}] {f.name} -> max_pres: {min_pres_value}")
-
-
-        sen_file = output_root / f"{geo_type}_{exp_name}_sen.json"
-
-        with sen_file.open("w") as f:
-            json.dump(max_sen_values, f, indent=2)
-
-        print(f"Saved {geo_type} -> {exp_name} sen maxes to {sen_file}")
+main()

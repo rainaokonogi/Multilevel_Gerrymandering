@@ -11,7 +11,6 @@ for random_seed in {1..5}; do
             sbatch --job-name="NY-${block_type}-part-${init_part}-seed-${random_seed}" \
                 --nodes=1 \
                 --ntasks=1 \
-                --partition=duchin \
                 --cpus-per-task=2 \
                 --mem=2G \
                 --time=4-00:00:00 \

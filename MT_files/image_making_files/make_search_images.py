@@ -10,10 +10,14 @@ from matplotlib.patches import Patch
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
 def collect_data(census_unit, party, election):
-
+    """Creates image illustrating the winner's bonus and the KDE.
+    Uses Montana results on precincts with Pres2020 data.
+    Shows histogram of seats won by Democrats across neutral runs, KDE for that histogram, the Dem vote share,
+    and a comparative line at V = 0.5.
+    """
     save_file = f"{CURRENT_WORKING_DIRECTORY}/image_replication/MT_search_images/MT_search_{census_unit}_{election}_{party}.jsonl"
 
-    updaters_folder = Path(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_results/gerry_output_updaters/{census_unit}/gerry_toward_{party}_using_{election}_data")
+    updaters_folder = Path(f"{CURRENT_WORKING_DIRECTORY}/MT_results/gerry_output_updaters/{census_unit}/gerry_toward_{party}_using_{election}_data")
 
     for i, file_path in enumerate(updaters_folder.glob("*.jsonl")):
 
@@ -66,7 +70,7 @@ def make_image():
 
             color = config["color"]
 
-            data = f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_results/image_data/MT_search_{census_units}_{party}_pres.jsonl"
+            data = f"{CURRENT_WORKING_DIRECTORY}/MT_results/image_data/MT_search_{census_units}_{party}_pres.jsonl"
 
             with open(data, "r") as f:
                 for i, line in enumerate(f):

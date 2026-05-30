@@ -8,7 +8,7 @@ for random_seed in {1..5}; do
         for block_type in "blockgroups" "vtds" "tracts"; do
         
             echo "Running with block_type=$block_type, init_part=$init_part, and random_seed=$random_seed"
-            PYTHONHASHSEED=0 uv run ${WORKING_DIRECTORY}/REPLICATION_REPO/MT_files/experiment_files/MT_neutral_exp_cli.py --block-type $block_type --init-part $init_part --random-seed $random_seed --total-steps 1000000
+            PYTHONHASHSEED=0 uv run ${WORKING_DIRECTORY}/MT_files/experiment_files/MT_neutral_exp_cli.py --block-type $block_type --init-part $init_part --random-seed $random_seed --total-steps 1000000
 
         done
     done

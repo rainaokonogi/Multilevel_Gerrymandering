@@ -9,8 +9,12 @@ from scipy.stats import gaussian_kde
 import random
 import seaborn as sns
 from pathlib import Path
+import os
 
 CURRENT_WORKING_DIRECTORY = Path.cwd()
+
+output_dir = f"{CURRENT_WORKING_DIRECTORY}/image_replication/final_results_images/"
+os.makedirs(output_dir, exist_ok=True)
 
 units_dict = {
     "vtds": {
@@ -27,7 +31,7 @@ units_dict = {
     }
 }
 
-make_plot_legend():
+def make_plot_legend():
     x = np.linspace(0, 1, 50)
     y = np.exp(-((x - 0.5) ** 2) / 0.02)
 
@@ -59,128 +63,123 @@ make_plot_legend():
 
     bell = BellCurveHandle(color='black')
 
-    straight_line_max = Line2D(
-        [0], [0],
-        color='black',
-        linewidth=3,
-        label='Maximum/minimum \n number of Dem seats \n from optimized searches'
-    )
-
-    straight_line_min = Line2D(
-        [0], [0],
-        color='black',
-        linewidth=3,
-        linestyle='--',
-        label='Maximum/minimum \n number of Dem seats \n from neutral ensemble'
-    )
+    handler_map = {
+        BellCurveHandle: HandlerBellCurve()
+    }
 
     legend_elements = [
-        Patch(facecolor=units_dict["vtds"][color], edgecolor=units_dict["vtds"][color], label='Precincts'),
-        Patch(facecolor=units_dict["blockgroups"][color], edgecolor=units_dict["blockgroups"][color], label='Block Groups'),
-        Patch(facecolor=units_dict["tracts"][color], edgecolor=units_dict["tracts"][color], label='Tracts'),
+        Patch(facecolor=units_dict["vtds"]["color"], edgecolor=units_dict["vtds"]["color"], label='Precincts'),
+        Patch(facecolor=units_dict["blockgroups"]["color"], edgecolor=units_dict["blockgroups"]["color"], label='Block Groups'),
+        Patch(facecolor=units_dict["tracts"]["color"], edgecolor=units_dict["tracts"]["color"], label='Tracts'),
         Patch(facecolor="black", edgecolor="black", label='Dem vote share'),
-        # Patch(facecolor='gray', edgecolor='gray', label='Distribution'),
-        bell,
-        straight_line_min,
-        straight_line_max
+        bell
     ]
 
     return legend_elements, handler_map
 
-    
-bins = np.arange(0, 51, 1)
+def main():
+    """Creates one image summarizing the results of the MT experiments using Sen2020 data.
+    Image will include KDEs for the number of Democratic seats across neutral runs,
+    the maximum number of Democratic seats found for runs gerrymandered toward Dems,
+    and the minumum number of Democratic seats found for runs gerrymandered toward Reps.
+    """
+    bins = np.arange(0, 51, 1)
 
-blockgroup_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_files/processed_results_data/neutral_histogram_data/blockgroups_sen_histogram.npy", allow_pickle=True)
-tracts_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_files/processed_results_data/neutral_histogram_data/tracts_sen_histogram.npy", allow_pickle=True)
-vtds_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_files/processed_results_data/neutral_histogram_data/vtds_sen_histogram.npy", allow_pickle=True)
+    vtds_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_sen_vtds_histogram.npy", allow_pickle=True)
+    blockgroup_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_sen_blockgroups_histogram.npy", allow_pickle=True)
+    tracts_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_sen_tracts_histogram.npy", allow_pickle=True)
 
-plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(10, 4))
 
-sns.kdeplot(
-    x=bins,
-    weights=blockgroup_data,
-    bw_adjust=0.8,
-    color=units_dict["blockgroups"]["color"]
-)
-sns.kdeplot(
-    x=bins,
-    weights=tracts_data,
-    bw_adjust=0.8,
-    color=units_dict["tracts"]["color"]
-)
-sns.kdeplot(
-    x=bins,
-    weights=vtds_data,
-    bw_adjust=0.8,
-    color=units_dict["vtds"]["color"]
-)
+    sns.kdeplot(
+        x=bins,
+        weights=vtds_data,
+        bw_adjust=0.8,
+        color=units_dict["vtds"]["color"]
+    )
+    sns.kdeplot(
+        x=bins,
+        weights=blockgroup_data,
+        bw_adjust=0.8,
+        color=units_dict["blockgroups"]["color"]
+    )
+    sns.kdeplot(
+        x=bins,
+        weights=tracts_data,
+        bw_adjust=0.8,
+        color=units_dict["tracts"]["color"]
+    )
 
-rng = np.random.default_rng(seed=36)
-delta = 0.5
-delta_neg = -0.5
+    rng = np.random.default_rng(seed=36)
+    delta = 0.5
+    delta_neg = -0.5
 
-all_maxs = []
-all_mins = []
+    all_maxs = []
+    all_mins = []
 
-with open(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_results/processed_results_data/gerry_max_and_min_values/gerry_toward_D_using_sen_data.jsonl",'r') as f:
-    for i, line in enumerate(f):
-        data = json.loads(line)
-        info = data["Max Vals"]
-        counts = Counter(info)
+    with open(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/gerry_max_and_min_values/gerry_toward_D_using_sen_data.jsonl",'r') as f:
+        for i, line in enumerate(f):
+            data = json.loads(line)
+            block_type = data["Block type"]
+            info = data["Max Vals"]
+            counts = Counter(info)
 
-        x_vals = np.array(sorted(counts.keys()))
-        sizes = np.array([counts[x] for x in x_vals])
+            x_vals = np.array(sorted(counts.keys()))
+            sizes = np.array([counts[x] for x in x_vals])
 
-        expanded = np.repeat(x_vals, sizes)
+            expanded = np.repeat(x_vals, sizes)
 
-        jitter = rng.uniform(delta_neg, delta, size=len(expanded)) * 0.5
+            jitter = rng.uniform(delta_neg, delta, size=len(expanded)) * 0.5
 
-        for xj in expanded + jitter:
-            all_maxs.append((xj, i))
+            for xj in expanded + jitter:
+                all_maxs.append((xj, block_type))
 
-with open(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/MT_results/processed_results_data/gerry_max_and_min_values/gerry_toward_R_using_sen_data.jsonl",'r') as f:
-    for i, line in enumerate(f):
-        data = json.loads(line)
-        info = data["Min Vals"]
-        counts = Counter(info)
+    with open(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/gerry_max_and_min_values/gerry_toward_R_using_sen_data.jsonl",'r') as f:
+        for i, line in enumerate(f):
+            data = json.loads(line)
+            block_type = data["Block type"]
+            info = data["Min Vals"]
+            counts = Counter(info)
 
-        x_vals = np.array(sorted(counts.keys()))
-        sizes = np.array([counts[x] for x in x_vals])
+            x_vals = np.array(sorted(counts.keys()))
+            sizes = np.array([counts[x] for x in x_vals])
 
-        expanded = np.repeat(x_vals, sizes)
+            expanded = np.repeat(x_vals, sizes)
 
-        jitter = rng.uniform(delta_neg, delta, size=len(expanded)) * 0.5
+            jitter = rng.uniform(delta_neg, delta, size=len(expanded)) * 0.5
 
-        for xj in expanded + jitter:
-            all_mins.append((xj, i))
+            for xj in expanded + jitter:
+                all_mins.append((xj, block_type))
 
-rng.shuffle(all_maxs)
-rng.shuffle(all_mins)
+    rng.shuffle(all_maxs)
+    rng.shuffle(all_mins)
 
-for xj, i in all_maxs:
-    plt.vlines(xj, 0, 0.35, linewidth=0.5, alpha=0.8, color=colors[i])
+    for xj, block_type in all_maxs:
+        plt.vlines(xj, 0, 0.35, linewidth=0.5, alpha=0.8, color=units_dict[block_type]["color"])
 
-for xj, i in all_mins:
-    plt.vlines(xj, 0, 0.35, linewidth=0.5, alpha=0.8, color=colors[i])
+    for xj, block_type in all_mins:
+        plt.vlines(xj, 0, 0.35, linewidth=0.5, alpha=0.8, color=units_dict[block_type]["color"])
 
-# Plot vote share
-plt.axvline(x=22.494, color='black', linewidth=4)
+    # Plot vote share
+    plt.axvline(x=22.494, color='black', linewidth=4)
 
-legend_elements, handler_map = make_plot_legend()
+    legend_elements, handler_map = make_plot_legend()
 
-plt.xticks(np.arange(0, 51, 5), fontsize=18)
-plt.yticks([])
-plt.xlim(0, 50)
-plt.ylim(0, 0.35)
-plt.legend(
-    handles=legend_elements,
-    handler_map=handler_map,
-    loc='upper left',
-    bbox_to_anchor=(1, 1)
-)
-plt.ylabel("")
-plt.xlabel("Number of Democratic seats \n (50 possible)")
-plt.ylabel("Count of plans")
-plt.title("Comparing performance of different census units to neutral ensemble \n 2020 Senate race, Montana")
-plt.tight_layout()
-plt.savefig(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/Montana_files/image_replication//final_results_images/MT_sen_results.png",dpi=600)
+    plt.xticks(np.arange(0, 51, 5), fontsize=18)
+    plt.yticks([])
+    plt.xlim(0, 50)
+    plt.ylim(0, 0.35)
+    # plt.legend(
+    #     handles=legend_elements,
+    #     handler_map=handler_map,
+    #     loc='upper left',
+    #     bbox_to_anchor=(1, 1)
+    # )
+    plt.ylabel("")
+    # plt.xlabel("Number of Democratic seats \n (50 possible)")
+    # plt.ylabel("Count of plans")
+    # plt.title("Comparing performance of different census units to neutral ensemble \n 2020 Senate race, Montana")
+    plt.tight_layout()
+    plt.savefig(Path(output_dir) / "MT_sen_results.png", dpi=600)
+
+main()
