@@ -4,11 +4,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+CURRENT_WORKING_DIRECTORY = Path.cwd()
+
 # Configuration
 files = [
-    "/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NN_compiled/med_BR_r_units_18_map_1__block_size_1.jsonl",
-    "/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NN_compiled/med_BR_r_units_18_map_1__block_size_2.jsonl",
-    "/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NN_compiled/med_BR_r_units_18_map_1__block_size_3.jsonl"
+    f"/share/duchin/raina/REP_DATA/6-12-24_grid_exp/24x24_grid_results/NN_compiled/med_BR_r_units_21_map_1_block_size_1.jsonl",
+    f"/share/duchin/raina/REP_DATA/6-12-24_grid_exp/24x24_grid_results/NN_compiled/med_BR_r_units_21_map_1_block_size_2.jsonl",
+    f"/share/duchin/raina/REP_DATA/6-12-24_grid_exp/24x24_grid_results/NN_compiled/med_BR_r_units_21_map_1_block_size_3.jsonl"
 ]
 
 # Max number of seats across all geographies
@@ -16,7 +18,7 @@ max_seats = 6
 bins = np.arange(-0.25, max_seats + 0.75, 0.5)  # integer bins [0,1), [1,2), ..., [63,64)
 
 # Output directory for saved histograms
-output_dir = Path("/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NN_hists")
+output_dir = Path("/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/processed_results_data/24x24_grid_results/NN")
 output_dir.mkdir(exist_ok=True)
 
 # Function to accumulate histogram counts per folder

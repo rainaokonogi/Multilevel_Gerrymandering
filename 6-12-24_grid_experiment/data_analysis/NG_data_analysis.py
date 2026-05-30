@@ -2,8 +2,8 @@ import os
 import json
 from tqdm import tqdm
 
-BASE_DIR = "/share/duchin/raina/6-12-24_grid_exp/24_results_updaters/NG/toward_R"
-OUT_DIR = "/share/duchin/raina/6-12-24_grid_exp/24_results_updaters/NG_minimums"
+BASE_DIR = "/share/duchin/raina/REP_DATA/6-12-24_grid_results/12x12_grid_results/NG/output_updaters/toward_R/"
+OUT_DIR = "/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/processed_results_data/12x12_grid_results/NG/NG_minimums"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 run_folders = [
@@ -82,8 +82,8 @@ for run_folder in tqdm(run_folders, desc="Run folders"):
             tqdm.write(f"{run_folder} | {block_folder} count = {len(min_values)}")
 
             out_record = {
-                "block_size": block_folder,
-                "min_Seats_won_D_values": min_values
+                "Block size": block_folder,
+                "Min values": min_values
             }
 
             outfile.write(json.dumps(out_record) + "\n")

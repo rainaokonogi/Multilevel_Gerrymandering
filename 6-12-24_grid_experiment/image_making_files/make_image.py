@@ -17,9 +17,9 @@ for map_type in ["med"]:
 
             colors = ["#C777DB", "#76C0D8", "#FFC787"]
 
-            one_data = np.load(f"/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NN_hists/{map_type}_BR_r_units_{num_r_units}_map_{map_number}__block_size_1.jsonl_histogram.npy", allow_pickle=True)
-            two_data = np.load(f"/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NN_hists/{map_type}_BR_r_units_{num_r_units}_map_{map_number}__block_size_2.jsonl_histogram.npy", allow_pickle=True)
-            four_data = np.load(f"/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NN_hists/{map_type}_BR_r_units_{num_r_units}_map_{map_number}__block_size_3.jsonl_histogram.npy", allow_pickle=True)
+            one_data = np.load(f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/processed_results_data/24x24_grid_results/NN/med_BR_r_units_{num_r_units}_map_1_block_size_1.jsonl_histogram.npy", allow_pickle=True)
+            two_data = np.load(f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/processed_results_data/24x24_grid_results/NN/med_BR_r_units_{num_r_units}_map_1_block_size_2.jsonl_histogram.npy", allow_pickle=True)
+            four_data = np.load(f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/processed_results_data/24x24_grid_results/NN/med_BR_r_units_{num_r_units}_map_1_block_size_3.jsonl_histogram.npy", allow_pickle=True)
 
             N = len(one_data)
             x = np.linspace(0, 6, N)
@@ -70,11 +70,11 @@ for map_type in ["med"]:
             xmin_4, xmax_4 = minmax(four_data)
 
             for i, block_size in enumerate([1,2,3]):
-                with open(f"/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NG_maximums/{map_type}_BR_r_units_{num_r_units}_map_{map_number}.jsonl", 'r') as f:
+                with open(f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/processed_results_data/24x24_grid_results/NG/NG_maximums/med_BR_r_units_{num_r_units}_map_1.jsonl", 'r') as f:
                     for k, line in enumerate(f):
                         data = json.loads(line)
-                        if data["block_size"] == f"block_size_{block_size}":
-                            counts = Counter(data["max_Seats_won_D_values"])
+                        if data["Block size"] == f"block_size_{block_size}":
+                            counts = Counter(data["Max values"])
                             x_vals = np.array(sorted(counts.keys()))
                             sizes = np.array([counts[x] for x in x_vals])
                             expanded = np.repeat(x_vals, sizes)
@@ -88,11 +88,11 @@ for map_type in ["med"]:
                                 color=colors[i]
                             )
 
-                with open(f"/share/duchin/raina/6-12-24_grid_exp/6_results_updaters/NG_minimums/{map_type}_BR_r_units_{num_r_units}_map_{map_number}.jsonl", 'r') as fi:
+                with open(f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/processed_results_data/24x24_grid_results/NG/NG_minimums/med_BR_r_units_{num_r_units}_map_1.jsonl", 'r') as fi:
                     for j, line in enumerate(fi):
                         data = json.loads(line)
-                        if data["block_size"] == f"block_size_{block_size}":
-                            counts = Counter(data["min_Seats_won_D_values"])
+                        if data["Block size"] == f"block_size_{block_size}":
+                            counts = Counter(data["Min values"])
 
                             x_vals = np.array(sorted(counts.keys()))
                             sizes = np.array([counts[x] for x in x_vals])
@@ -139,7 +139,7 @@ for map_type in ["med"]:
                         if num_r_units == "18":
                             ax.vlines(3,0, 1, color='black', linewidth=3)
                         elif num_r_units == "21":
-                            ax.vlines(2.46, 0, 1, color='black', linewidth=3)
+                            ax.vlines(2.5, 0, 1, color='black', linewidth=3)
 
                     # jitter = jitter_x(10)
 
@@ -184,20 +184,6 @@ for map_type in ["med"]:
 
                     bell = BellCurveHandle(color='black')
 
-                    straight_line_max = Line2D(
-                        [0], [0],
-                        color='black',
-                        linewidth=3,
-                        label='Maximum/minimum \n number of blue seats \n from optimized searches'
-                    )
-
-                    straight_line_min = Line2D(
-                        [0], [0],
-                        color='black',
-                        linewidth=3,
-                        linestyle='--',
-                        label='Maximum/minimum \n number of blue seats \n from neutral ensemble'
-                    )
 
                     legend_elements = [
                         Patch(facecolor=colors[0], edgecolor=colors[0], label='Size 1'),
@@ -208,19 +194,17 @@ for map_type in ["med"]:
                         Patch(facecolor="black", edgecolor="black", label='Blue vote share'),
                         # Patch(facecolor='gray', edgecolor='gray', label='Distribution'),
                         bell,
-                        straight_line_min,
-                        straight_line_max
                     ]
 
 
                 ax.set_ylabel("")
                 # ax.tick_params(axis='y', labelsize=14)
-                ax.set_xlim(0, 6)
+                ax.set_xlim(-0.5, 6.5)
                 ax.set_xticks(np.arange(0, 7, 1))
                 ax.tick_params(axis='x')
                 ax.set_ylim(0, 1)
                 ax.set_yticks([])
-                to_save = f"/share/duchin/raina/6-12-24_grid_exp/images/only_search_maxes_and_mins/by_color/6_{map_type}_BR_score_r_units_{num_r_units}_map_{map_number}_no_label_combined_NN_NG_combined_size_{block_size}.png"
+                to_save = f"/share/duchin/raina/6-12-24_grid_exp/images/only_search_maxes_and_mins/by_color/24_{map_type}_BR_score_r_units_{num_r_units}_map_{map_number}_no_label_combined_NN_NG_combined_size_{block_size}.png"
                 os.makedirs(os.path.dirname(to_save), exist_ok=True)
                 plt.tight_layout()
                 fig.savefig(to_save,bbox_inches=None)
