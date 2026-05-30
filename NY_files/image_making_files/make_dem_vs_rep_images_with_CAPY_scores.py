@@ -12,6 +12,7 @@ from pathlib import Path
 
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
+# These functions are for the computation of the CAPY half-edge score. They are adapted from the GitHub associated to that paper (see MGGG GitHub).
 @functools.cache  # cached for speed purposes
 def _angle_1(graph: gerrychain.Graph, x_col: str, y_col: str) -> float:
     first_summation = 0
@@ -79,95 +80,99 @@ def half_edge(
 
     return 0.5 * ((x_x / (x_x + x_y)) + (y_y / (y_y + x_y)))
 
-for block_type in ["vtds", "blockgroups", "tracts", "counties"]:
+def main():
+    """Creates the following images: for each of four census units in NY, draw the state dual graph
+    with nodes scaled by population and colored based on Democratic or Republican affiliation
+    (determined using Pres2020 voting data). Above the image of the dual graph, print the CAPY half-edge score for this census unit.
+    """
+    for block_type in ["vtds", "blockgroups", "tracts", "counties"]:
 
-    graph_json = f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/NY_files/dual_graphs/NY_{block_type}_dual_graph.json"
+        graph_json = f"{CURRENT_WORKING_DIRECTORY}/NY_files/dual_graphs/NY_{block_type}_dual_graph.json"
 
-    if block_type == "vtds":
-        shp_path = f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/NY_files/shapefiles/vtds_shapefiles/tl_2020_30_vtd20_with_pop_election.shp"
-    elif block_type == "blockgroups":
-        shp_path = f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/NY_files/shapefiles/blockgroups_shapefiles/tl_2020_30_bg_with_pop_election.shp"
-    elif block_type == "tracts":
-        shp_path = f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/NY_files/shapefiles/tracts_shapefiles/tl_2020_30_tract_with_pop_election.shp"
-    elif block_type == "counties":
-        shp_path = f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/NY_files/shapefiles/counties_shapefiles/ny_counties_with_race_election.shp"
+        if block_type == "vtds":
+            shp_path = f"{CURRENT_WORKING_DIRECTORY}/NY_files/shapefiles/vtds_shapefiles/tl_2020_30_vtds_with_race_and_election_data.shp"
+        elif block_type == "blockgroups":
+            shp_path = f"{CURRENT_WORKING_DIRECTORY}/NY_files/shapefiles/blockgroups_shapefiles/tl_2020_30_bg_with_race_and_election_data.shp"
+        elif block_type == "tracts":
+            shp_path = f"{CURRENT_WORKING_DIRECTORY}/NY_files/shapefiles/tracts_shapefiles/tl_2020_30_tracts_with_race_and_election_data.shp"
+        elif block_type == "counties":
+            shp_path = f"{CURRENT_WORKING_DIRECTORY}/NY_files/shapefiles/counties_shapefiles/ny_counties_with_race_and_election_data.shp"
 
-    # Load shapefile
-    gdf = gpd.read_file(shp_path)
+        # Load shapefile
+        gdf = gpd.read_file(shp_path)
 
-    # Build Graph from JSON
-    graph = Graph.from_json(graph_json)
+        # Build Graph from JSON
+        graph = Graph.from_json(graph_json)
 
-    # Compute half-edge score
-    ny_CAPY_result = half_edge(graph, "PRES20DEM", "PRES20REP")
+        # Compute half-edge score
+        ny_CAPY_result = half_edge(graph, "PRES20DEM", "PRES20REP")
 
-    # Reproject shapefile for positions
-    # Montana: 26912
-    # NY: 2263
-    gdf = gdf.to_crs(epsg=2263)
-    centroids = gdf.geometry.centroid
+        # Reproject shapefile for positions
+        # NY: 2263
+        gdf = gdf.to_crs(epsg=2263)
+        centroids = gdf.geometry.centroid
 
-    # Map GEOID → position
-    # Build GEOID → position dictionary from gdf
-    gdf_geoid_to_pos = {row["GEOID"]: (row.geometry.centroid.x, row.geometry.centroid.y)
-                        for _, row in gdf.iterrows()}
+        # Build GEOID → position dictionary from gdf
+        gdf_geoid_to_pos = {row["GEOID"]: (row.geometry.centroid.x, row.geometry.centroid.y)
+                            for _, row in gdf.iterrows()}
 
-    # Build node → position mapping
-    # Check if nodes have 'GEOID' attribute
-    pos = {}
-    for node in graph.nodes:
-        geoid = graph.nodes[node].get("GEOID")  # each node should have GEOID
-        if geoid is None:
-            raise ValueError(f"Node {node} has no GEOID attribute!")
-        pos[node] = gdf_geoid_to_pos[geoid]
+        # Build node → position mapping
+        # Check if nodes have 'GEOID' attribute
+        pos = {}
+        for node in graph.nodes:
+            geoid = graph.nodes[node].get("GEOID")
+            if geoid is None:
+                raise ValueError(f"Node {node} has no GEOID attribute!")
+            pos[node] = gdf_geoid_to_pos[geoid]
 
-    node_colors = []
-    node_party = {}  # to track party for each node
-    for node in graph.nodes:
-        dem = gdf.loc[node, "PRES20DEM"]
-        rep = gdf.loc[node, "PRES20REP"]
-        if dem > rep:
-            node_colors.append("#1560BD")
-            node_party[node] = "DEM"
-        elif rep > dem:
-            node_colors.append("#E62020")
-            node_party[node] = "REP"
-        else:
-            node_colors.append("black")
-            node_party[node] = "TIE"
+        # Make Dem-majority nodes blue, Rep-majority nodes red, and tied nodes black
+        node_colors = []
+        for node in graph.nodes:
+            dem = gdf.loc[node, "PRES20DEM"]
+            rep = gdf.loc[node, "PRES20REP"]
+            if dem > rep:
+                node_colors.append("#1560BD")
+            elif rep > dem:
+                node_colors.append("#E62020")
+            else:
+                node_colors.append("black")
 
-    plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(10, 8))
 
-    nx.draw_networkx_edges(
-        graph,
-        pos,
-        edge_color="black",
-        width=0.4
-    )
+        nx.draw_networkx_edges(
+            graph,
+            pos,
+            edge_color="black",
+            width=0.4
+        )
 
-    node_sizes = [graph.nodes[n]['total_pop'] for n in graph.nodes]
+        node_sizes = [graph.nodes[n]['total_pop'] for n in graph.nodes]
 
-    node_sizes = [size * 0.02 for size in node_sizes]
+        node_sizes = [size * 0.02 for size in node_sizes]
 
-    nx.draw_networkx_nodes(
-        graph,
-        pos,
-        node_size=node_sizes,
-        node_color=node_colors
-    )
-    legend_elements = [
-        Patch(facecolor="#1560BD", edgecolor="#1560BD", label="Majority Democratic"),
-        Patch(facecolor="#E62020", edgecolor="#E62020", label="Majority Republican")
-    ]
-    plt.axis("equal")
-    plt.axis("off")
-    plt.margins(0)
-    plt.tight_layout()
-    plt.suptitle(
-        "half-edge score = " + str(ny_CAPY_result),
-        fontsize=20
-    )
-    save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/NY_partisan_CAPY_images/dem_vs_rep_pres_{block_type}.png"
-    os.makedirs(save_location, exist_ok=True)
-    plt.savefig(save_location, dpi=600)
-    plt.close()
+        nx.draw_networkx_nodes(
+            graph,
+            pos,
+            node_size=node_sizes,
+            node_color=node_colors
+        )
+
+        legend_elements = [
+            Patch(facecolor="#1560BD", edgecolor="#1560BD", label="Majority Democratic"),
+            Patch(facecolor="#E62020", edgecolor="#E62020", label="Majority Republican")
+        ]
+
+        plt.axis("equal")
+        plt.axis("off")
+        plt.margins(0)
+        plt.tight_layout()
+        plt.suptitle(
+            "half-edge score = " + str(ny_CAPY_result),
+            fontsize=20
+        )
+        save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/NY_partisan_CAPY_images/dem_vs_rep_pres_{block_type}.png"
+        os.makedirs(save_location, exist_ok=True)
+        plt.savefig(save_location, dpi=600)
+        plt.close()
+
+main()

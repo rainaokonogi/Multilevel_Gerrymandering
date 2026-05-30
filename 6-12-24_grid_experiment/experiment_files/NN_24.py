@@ -27,7 +27,7 @@ def run_experiment_nn_24(assort_score, num_r_units, map_number, block_size, init
 
     # Load data from map
     underlying_map = (
-        f"/share/duchin/raina/6-12-24_grid_exp/24x24_unit_maps/map_.jsons/"
+        f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/grids_and_blocks/grid_maps/24x24_unit_maps/map_.jsons/"
         f"{assort_score}_BR_r_units_{num_r_units}_map_{map_number}.json"
     )
     underlying_graph = Graph.from_json(underlying_map)
@@ -40,18 +40,18 @@ def run_experiment_nn_24(assort_score, num_r_units, map_number, block_size, init
     for sample in range(1,101):
 
         save_assignment_results_to = (
-            f"/share/duchin/raina/6-12-24_grid_exp/24_results_ensembles/NN/{assort_score}_BR_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
+            f"/share/duchin/raina/REP_DATA/6-12-24_grid_results/24x24_grid_results/NN/output_ensembles/{assort_score}_BR_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
             f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_steps_{total_steps}_assignment.ben"
         )
         save_updaters_results_to = (
-            f"/share/duchin/raina/6-12-24_grid_exp/24_results_updaters/NN/{assort_score}_BR_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
+            f"/share/duchin/raina/REP_DATA/6-12-24_grid_results/24x24_grid_results/NN/output_updaters/{assort_score}_BR_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
             f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_steps_{total_steps}_updaters.jsonl"
         )
         os.makedirs(os.path.dirname(save_assignment_results_to), exist_ok=True)
         os.makedirs(os.path.dirname(save_updaters_results_to), exist_ok=True)
 
         block_data = (
-            f"/share/duchin/raina/6-12-24_grid_exp/24_block_partitions/"
+            f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/grids_and_blocks/block_partitions/24_block_partitions/"
             f"block_size_{block_size}/sample_{sample}.json"
         )
             

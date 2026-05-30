@@ -2,57 +2,71 @@ import json
 from pathlib import Path
 import os
 
-# Root folder
-root = Path("/share/duchin/raina/REP_DATA/New_York_results/gerry/gerry_updaters")
+CURRENT_WORKING_DIRECTORY = Path.cwd()
 
-# Output folder
-output_file = "/share/duchin/raina/REPLICATION_REPO/NY_files/processed_results_data/gerry_max_and_min_values/gerry_toward_D_using_pres_data.jsonl"
+def main():
+    """Performs data analysis on some of the New York experiment results.
+    Specifically, looks at the short bursts optimization runs gerrymandered toward Democrats using Pres2020 data
+    and saves the maximum number of seats won by Democrats in any plan for each chain.
+    """
+    # Root folder
+    root = Path(f"{CURRENT_WORKING_DIRECTORY}/REP_DATA/New_York_results/gerry/gerry_updaters")
 
-# Iterate over geographic types
-for geo_type in ["vtds", "blockgroups", "tracts"]:
+    if not root.exists():
+        raise FileNotFoundError(
+            f"New York gerrymandered results folder not found.\n"
+            "This data is available from the author upon request.\n"
+        )
 
-    geo_path = root / geo_type
-    for exp_folder in geo_path.iterdir():
-        print(exp_folder)
+    # Output folder
+    output_file = f"{CURRENT_WORKING_DIRECTORY}/NY_files/processed_results_data_(replicated)/gerry_max_and_min_values/gerry_toward_D_using_pres_data.jsonl"
+    os.makedirs(output_file, exist_ok=True)
 
-        if not exp_folder.is_dir():
-            print("skipping")
-            continue
-        exp_name = exp_folder.name
-        if exp_name == "gerry_toward_D_using_sen_data":
-            continue
-        elif exp_name == "gerry_toward_R_using_pres_data":
-            continue
-        elif exp_name == "gerry_toward_R_using_sen_data":
-            continue
+    # Find maximums for all three types of census units
+    for geo_type in ["vtds", "blockgroups", "tracts"]:
 
-        max_pres_values = []
+        geo_path = root / geo_type
+        for exp_folder in geo_path.iterdir():
 
-        jsonl_files = sorted(exp_folder.glob("*.jsonl"))
+            # Access data from experiment gerrymandering toward Democrats using Pres2020 data
+            if not exp_folder.is_dir():
+                print("skipping; not a directory")
+                continue
+            exp_name = exp_folder.name
+            if exp_name != "gerry_toward_D_using_pres_data":
+                continue
 
-        for i, f in enumerate(jsonl_files, start=1):
-            max_pres_value = None
+            max_pres_values = []
 
-            with f.open() as infile:
-                for line in infile:
-                    plan = json.loads(line)
-                    
-                    pres_seats = plan.get("Pres seats won", {}).get("D", None)
-                    if pres_seats is not None:
-                        if max_pres_value is None or pres_seats > max_pres_value:
-                            max_pres_value = pres_seats
+            jsonl_files = sorted(exp_folder.glob("*.jsonl"))
 
-            max_pres_values.append(max_pres_value)
+            for i, f in enumerate(jsonl_files, start=1):
+                max_pres_value = None
 
-            # Print progress
-            print(f"  [{i}/{len(jsonl_files)}] {f.name} -> max_pres: {max_pres_value}")
+                with f.open() as infile:
+                    for line in infile:
+                        plan = json.loads(line)
+                        
+                        # For each step in chain, check if the number of seats won by Dems is the new maximum
+                        pres_seats = plan.get("Pres seats won", {}).get("D", None)
+                        if pres_seats is not None:
+                            if max_pres_value is None or pres_seats > max_pres_value:
+                                max_pres_value = pres_seats
 
-        record = {
-            "Block type": geo_type,
-            "Max Vals": max_pres_values
-        }
+                # Save the max val for each individual chain
+                max_pres_values.append(max_pres_value)
 
-        with output_file.open("a") as f:
-            json.dump(record)
+                # Print progress
+                print(f"  [{i}/{len(jsonl_files)}] {f.name} -> max_pres: {max_pres_value}")
 
-        print(f"Saved {geo_type} -> {exp_name} pres maxes to {output_file}")
+            # Save results
+            record = {
+                "Block type": geo_type,
+                "Max Vals": max_pres_values
+            }
+
+            with open(output_file, "a") as f:
+                json.dump(record, f)
+                f.write("\n")
+
+main()

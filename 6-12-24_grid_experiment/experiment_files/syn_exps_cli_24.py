@@ -46,6 +46,7 @@ from NG_24 import run_experiment_ng_24
 )
 @click.option(
     "--burst-length",
+    prompt="Burst length for short bursts algorithm (should be 20)",
     type=int
 )
 @click.option(

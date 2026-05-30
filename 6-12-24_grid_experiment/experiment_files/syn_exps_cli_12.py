@@ -46,6 +46,7 @@ from NG_12 import run_experiment_ng_12
 )
 @click.option(
     "--burst-length",
+    prompt="Burst length for short bursts algorithm (should be 20)",
     type=int
 )
 @click.option(
@@ -54,6 +55,7 @@ from NG_12 import run_experiment_ng_12
     type=int,
     help="Number of districting plans per building block graph",
 )
+
 def main(
     assort_score, num_r_units, map_number, block_size, experiment_type, init_part, random_seed, burst_length, total_steps
 ):

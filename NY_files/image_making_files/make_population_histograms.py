@@ -8,33 +8,52 @@ import seaborn as sns
 
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
-labels_dict = {"vtds": "Precincts", "blockgroups": "Block Groups", "tracts": "Tracts"}
-colors_dict = {"vtds": "#76C0D8", "blockgroups": "#C777DB", "tracts": "#FFC787"}
+def main():
 
-for block_type in ["vtds", "blockgroups", "tracts"]:
-    graph = Graph.from_json(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/NY_files/dual_graphs/{block_type}_dual_graph.json")
+    units_dict = {
+        "vtds": {
+            "label": "Precincts",
+            "color": "#76C0D8"
+        },
+        "blockgroups": {
+            "label": "Block Groups",
+            "color": "#C777DB"
+        },
+        "tracts": {
+            "label": "Tracts",
+            "color": "#FFC787"
+        }
+    }
 
-    pop = [d["total_pop"] for _, d in graph.nodes(data=True)]
+def main ():
+    """Creates, for each of the three census units in MT, a histogram of the populations in those units.
+    """
+    for block_type in ["vtds", "blockgroups", "tracts"]:
+        graph = Graph.from_json(f"{CURRENT_WORKING_DIRECTORY}/NY_files/dual_graphs/{block_type}_dual_graph.json")
 
-    sns.set(style="whitegrid")
+        pop = [d["total_pop"] for _, d in graph.nodes(data=True)]
 
-    bins = bins = np.linspace(0, 10000, 26)
+        sns.set(style="whitegrid")
 
-    plt.figure(figsize=(10, 6))
-    sns.histplot(pop,
-                color=colors_dict[block_type],
-                label=labels_dict[block_type],
-                kde=False,
-                bins=bins)
-    plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
+        bins = bins = np.linspace(0, 10000, 26)
 
-    plt.ylim(0, 5500)
-    plt.xlim(0, 10000)
-    plt.legend()
-    plt.ylabel("")
-    plt.tight_layout()
+        plt.figure(figsize=(10, 6))
+        sns.histplot(pop,
+                    color=colors_dict[block_type],
+                    label=labels_dict[block_type],
+                    kde=False,
+                    bins=bins)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
 
-    save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/NY_unit_population_images/{block_type}_populations.png"
-    os.makedirs(save_location, exist_ok=True)
-    plt.savefig(save_location, dpi=600)
+        plt.ylim(0, 5500)
+        plt.xlim(0, 10000)
+        plt.legend()
+        plt.ylabel("")
+        plt.tight_layout()
+
+        save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/NY_unit_population_images/{block_type}_populations.png"
+        os.makedirs(save_location, exist_ok=True)
+        plt.savefig(save_location, dpi=600)
+
+main()
