@@ -19,119 +19,124 @@ for bb in range(0, building_block_size + 1):
         if 2 * bb + br >= 7:   # majority blue units
             valid_winning_districts.append((bb, br, rr))
 
-print(len(valid_winning_districts))
+# def count_ways_achieve_max_districts(bb_total, br_total, rr_total, sets_needed):
 
-quit()
+#     memo = {}
+
+#     district_types = list(valid_winning_districts)
+
+#     m = len(district_types)
+
+#     @lru_cache(None)
+#     def search(i, bb, br, rr, k):
+
+#         # Return 1 if you have made the max number of blue-winning districts
+#         if k == 0:
+#             return 1
+        
+#         # Return 0 if you have exhausted all types of blue-winning districts
+#         if i == m:
+#             return 0
+
+#         # Consider a type of blue-winning district
+#         xbb, xbr, xrr = district_types[i]
+
+#         total = 0
+
+#         # We will try using this type t times; initial upper bound is the desired number of districts
+#         max_t = k
+
+#         # Upper bound is the most we could build with current supply of dominoes
+#         if xbb > 0:
+#             max_t = min(max_t, bb // xbb)
+#         if xbr > 0:
+#             max_t = min(max_t, br // xbr)
+#         if xrr > 0:
+#             max_t = min(max_t, rr // xrr)
+
+#         # 
+#         for t in range(max_t + 1):
+
+#             need_bb = t * xbb
+#             need_br = t * xbr
+#             need_rr = t * xrr
+
+#             ways = ((factorial(bb) * factorial(br) * factorial(rr)) //
+#                 ((factorial(t)
+#                 * (factorial(xbb) ** t)
+#                 * (factorial(xbr) ** t)
+#                 * (factorial(xrr) ** t)
+#                 * factorial(bb - (t * xbb))
+#                 * factorial(br - (t * xbr))
+#                 * factorial(rr - (t * xrr)))
+#             ))
+
+#             total += ways * search(
+#                 i + 1,
+#                 bb - need_bb,
+#                 br - need_br,
+#                 rr - need_rr,
+#                 k - t
+#             )
+
+#         return total
+
+#     result = search(0, bb_total, br_total, rr_total, sets_needed)
+
+#     # number_ways_unordered_districts = number_ways_ordered_districts // factorial(sets_needed)
+
+#     # convert to unordered districts
+#     return result
+
+
 
 def count_ways_achieve_max_districts(bb_total, br_total, rr_total, sets_needed):
 
     memo = {}
 
-    district_types = list(valid_winning_districts)
-
-    m = len(district_types)
-
-    @lru_cache(None)
-    def search(i, bb, br, rr, k):
+    def search(bb, br, rr, k):
+        key = (bb, br, rr, k)
+        if key in memo:
+            return memo[key]
 
         if k == 0:
+            memo[key] = 1
             return 1
-        if i == m:
-            return 0
 
-        xbb, xbr, xrr = district_types[i]
+        if bb < 0 or br < 0 or rr < 0:
+            memo[key] = 0
+            return 0
 
         total = 0
 
-        # try using this type t times
-        max_t = k
+        # Search over all ways to make a winning district
+        for xbb, xbr, xrr in valid_winning_districts:
 
-        # resource-limited upper bound (important pruning)
-        if xbb > 0:
-            max_t = min(max_t, bb // xbb)
-        if xbr > 0:
-            max_t = min(max_t, br // xbr)
-        if xrr > 0:
-            max_t = min(max_t, rr // xrr)
+            # If you have enough "allowance" to make a type of winning district, sum all ways possible using labeled blocks
+            if bb >= xbb and br >= xbr and rr >= xrr:
+                ways_choose_blocks = (
+                    comb(bb, xbb) *
+                    comb(br, xbr) *
+                    comb(rr, xrr)
+                )
 
-        for t in range(max_t + 1):
+                # Continue searching for the rest of the districts
+                total += ways_choose_blocks * search(
+                    bb - xbb,
+                    br - xbr,
+                    rr - xrr,
+                    k - 1
+                )
 
-            need_bb = t * xbb
-            need_br = t * xbr
-            need_rr = t * xrr
-
-            ways = (
-                comb(bb, need_bb) *
-                comb(br, need_br) *
-                comb(rr, need_rr)
-            )
-
-            total += ways * search(
-                i + 1,
-                bb - need_bb,
-                br - need_br,
-                rr - need_rr,
-                k - t
-            )
-
+        memo[key] = total
         return total
 
-    result = search(0, bb_total, br_total, rr_total, sets_needed)
+    number_ways_ordered_districts = search(bb_total, br_total, rr_total, sets_needed)
 
-    # number_ways_unordered_districts = number_ways_ordered_districts // factorial(sets_needed)
+    number_ways_unordered_districts = number_ways_ordered_districts // factorial(sets_needed)
 
     # convert to unordered districts
-    return result
-
-
-
-# def count_ways_achieve_max_districts(bb_total, br_total, rr_total, sets_needed):
-
-#     memo = {}
-
-#     def search(bb, br, rr, k):
-#         key = (bb, br, rr, k)
-#         if key in memo:
-#             return memo[key]
-
-#         if k == 0:
-#             memo[key] = 1
-#             return 1
-
-#         if bb < 0 or br < 0 or rr < 0:
-#             memo[key] = 0
-#             return 0
-
-#         total = 0
-
-#         # Search over all ways to make a winning district
-#         for xbb, xbr, xrr in valid_winning_districts:
-
-#             # If you have enough "allowance" to make a type of winning district, sum all ways possible using labeled blocks
-#             if bb >= xbb and br >= xbr and rr >= xrr:
-#                 ways_choose_blocks = (
-#                     comb(bb, xbb) *
-#                     comb(br, xbr) *
-#                     comb(rr, xrr)
-#                 )
-
-#                 # Continue searching for the rest of the districts
-#                 total += ways_choose_blocks * search(
-#                     bb - xbb,
-#                     br - xbr,
-#                     rr - xrr,
-#                     k - 1
-#                 )
-
-#         memo[key] = total
-#         return total
-
-#     number_ways_ordered_districts = search(bb_total, br_total, rr_total, sets_needed)
-
-#     number_ways_unordered_districts = number_ways_ordered_districts // factorial(sets_needed)
-
-#     # convert to unordered districts
-#     return number_ways_unordered_districts
+    return number_ways_unordered_districts
 
 def can_make_target_num_blue_districts(nBB, nBR, nRR, target):
     PAT = tuple(valid_winning_districts)
@@ -163,8 +168,6 @@ def can_make_target_num_blue_districts(nBB, nBR, nRR, target):
         memo[key] = False
         return False
 
-    print(nBB)
-    print(search(nBB, nBR, nRR, 0))
     return search(nBB, nBR, nRR, 0)
 
     with open("GG_72R_72D_size_2.csv", "w", newline="") as csvfile:
@@ -184,7 +187,7 @@ def compute_best_GG_comps(red_pts):
     blue_pts = 144 - red_pts
     max_districts = min(12,floor(blue_pts/7))
      
-    with open(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/theoretical_grid_files/compositions_for_which_max_district_is_achievable/GG_{red_pts}R_{blue_pts}D_size_2.csv", newline="") as f:
+    with open(f"{CURRENT_WORKING_DIRECTORY}/theoretical_grid_files/compositions_for_which_max_district_is_achievable/GG_{red_pts}R_{blue_pts}D_size_2.csv", newline="") as f:
         reader = csv.reader(f)
         header = next(reader)  # skip header row
 
@@ -196,7 +199,8 @@ def compute_best_GG_comps(red_pts):
                 if num_ways > max_val:
                     max_val = num_ways
                     bbs_in_best_comp = bb
-                    
+        
+        print(max_val)
         return bbs_in_best_comp
 
 def make_GG_best_image():
@@ -208,6 +212,8 @@ def make_GG_best_image():
         best_comp = compute_best_GG_comps(red_pts)
         x_values.append(144 - red_pts)
         y_values.append(best_comp)
+    print(x_values)
+    print(y_values)
 
     plt.figure(figsize=(10, 7))
     plt.plot(list(range(72, 145)), [i - 72 for i in list(range(72, 145))], alpha=0.8, linewidth=5, color="#C9DC87",label="Smallest number of blue-blue dominos possible")
@@ -216,8 +222,9 @@ def make_GG_best_image():
     plt.yticks(fontsize=16)
     handles, labels = plt.gca().get_legend_handles_labels()
     # plt.legend([handles[1], handles[0]], [labels[1], labels[0]], fontsize=14)
-    plt.savefig(f"{CURRENT_WORKING_DIRECTORY}/REPLICATION_REPO/theoretical_grid_files/best_GG_comps_size_2.png",bbox_inches="tight",dpi=600)
+    plt.savefig(f"{CURRENT_WORKING_DIRECTORY}/theoretical_grid_files/best_GG_comps_size_2.png",bbox_inches="tight",dpi=600)
 
+# make_GG_best_image()
 make_GG_best_image()
 
 

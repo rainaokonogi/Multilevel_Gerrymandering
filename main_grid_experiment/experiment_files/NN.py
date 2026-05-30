@@ -10,13 +10,13 @@ import ast
 import os
 from pyben import PyBenEncoder
 
-SCRIPT_FILE_PATH = os.path.abspath(__file__)
-SCRIPT_DIR = os.path.dirname(SCRIPT_FILE_PATH)
+CURRENT_WORKING_DIRECTORY = Path.cwd()
 
 def run_experiment_nn(assort_score, num_r_units, map_number, block_size, init_part, random_seed, total_steps):
     """Run experiment where neither the building blocks nor the resulting maps are gerrymandered.
 
     Args:
+        assort_score (str): Indicates level of clustering on underlying grid; either "low", "med", or "high".
         num_r_units (int): Number of Republican units in underlying map (e.g., 58, 72, 86).
         map_number (int): Map number to use (1-9).
         block_size (int): Size of building blocks (e.g., 2, 3, 4, 6).
@@ -27,7 +27,7 @@ def run_experiment_nn(assort_score, num_r_units, map_number, block_size, init_pa
 
     # Load data from map
     underlying_map = (
-        f"{SCRIPT_DIR}/unit_maps_to_use/map_.jsons/"
+        f"{CURRENT_WORKING_DIRECTORY}/main_grid_experiment/grids_and_blocks/grid_maps/grids_.jsons/"
         f"{assort_score}_BR_score_r_units_{num_r_units}_map_{map_number}.json"
     )
     underlying_graph = Graph.from_json(underlying_map)
@@ -40,18 +40,18 @@ def run_experiment_nn(assort_score, num_r_units, map_number, block_size, init_pa
     for sample in range(1,101):
 
         save_assignment_results_to = (
-            f"{SCRIPT_DIR}/../output_ensembles/new_score_function/NN/{assort_score}_BR_score_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
+            f"{CURRENT_WORKING_DIRECTORY}/12x12_grid_results_(replicated)/NN/output_ensembles/{assort_score}_BR_score_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
             f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_steps_{total_steps}_assignment.ben"
         )
         save_updaters_results_to = (
-            f"{SCRIPT_DIR}/../output_stats/new_score_function/NN/{assort_score}_BR_score_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
+            f"{CURRENT_WORKING_DIRECTORY}/12x12_grid_results_(replicated)/NN/output_updaters/{assort_score}_BR_score_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
             f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_steps_{total_steps}_updaters.jsonl"
         )
         os.makedirs(os.path.dirname(save_assignment_results_to), exist_ok=True)
         os.makedirs(os.path.dirname(save_updaters_results_to), exist_ok=True)
 
         block_data = (
-            f"{SCRIPT_DIR}/syn_building_block_partitions/neutral/"
+            f"{CURRENT_WORKING_DIRECTORY}/main_grid_experiment/grids_and_blocks/block_partitions/neutral/"
             f"block_size_{block_size}/sample_{sample}.json"
         )
             
