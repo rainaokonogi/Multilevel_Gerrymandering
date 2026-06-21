@@ -3,3 +3,6 @@ To obtain this data, please contact the author Raina Okonogi-Neth, email reo39@c
 You can also generate these results yourself by running the experiments.
 However, in that case, note that you will need to remove the "__(replicated)" from the folder title in order to run
 files that rely on this data, like those that produce the images in the paper.
+
+Each of the experiments from the paper is stored in a different file.
+Please see individual README files in each folder for more information on what each folder contains.
