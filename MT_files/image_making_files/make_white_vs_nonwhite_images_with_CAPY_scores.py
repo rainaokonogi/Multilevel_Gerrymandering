@@ -80,8 +80,15 @@ def half_edge(
 
     return 0.5 * ((x_x / (x_x + x_y)) + (y_y / (y_y + x_y)))
 
+scale_factors = {
+    "vtds": 0.01,
+    "blockgroups": 0.01,
+    "tracts": 0.01,
+    "counties": 0.001
+}
+
 def main():
-     """Creates the following images: for each of four census units in MT, draw the state dual graph
+    """Creates the following images: for each of four census units in MT, draw the state dual graph
     with nodes scaled by population and colored based on whether the population is majority White or non-White
     (based on 2020 Census). Above the image of the dual graph, print the CAPY half-edge score for this census unit.
     """
@@ -102,7 +109,7 @@ def main():
         gdf = gpd.read_file(shp_path)
 
         # Build Graph from JSON
-        graph = Graph.from_json(graph_json)
+        graph = gerrychain.Graph.from_json(graph_json)
 
         # Compute pop_diff for each node
         for node in graph.nodes:
@@ -137,11 +144,11 @@ def main():
             white = graph.nodes[node]['white_pop']
             nonwhite = graph.nodes[node]['non_white_pop']
             if white > nonwhite:
-                node_colors.append(colors[0])
+                node_colors.append("#800080")
             elif nonwhite > white:
-                node_colors.append(colors[1]) 
+                node_colors.append("#03C03C") 
             else:
-                node_colors.append("gray")
+                node_colors.append("black")
 
         plt.figure(figsize=(10, 8))
 
@@ -177,7 +184,7 @@ def main():
             fontsize=20
         )
         save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/MT_racial_CAPY_images/white_vs_nonwhite_{block_type}.png"
-        os.makedirs(save_location, exist_ok=True)
+        os.makedirs(os.path.dirname(save_location), exist_ok=True)
         plt.savefig(save_location, dpi=600)
         plt.close()
 

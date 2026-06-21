@@ -8,6 +8,8 @@ from matplotlib.legend_handler import HandlerBase
 from scipy.stats import gaussian_kde
 import random
 import seaborn as sns
+from pathlib import Path
+import os
 
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
@@ -17,9 +19,9 @@ os.makedirs(output_dir, exist_ok=True)
 def main():
 
     # Neutral data
-    vtds_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_pres_vtds_histogram.npy", allow_pickle=True)
-    blockgroup_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_pres_blockgroups_histogram.npy", allow_pickle=True)
-    tracts_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_pres_tracts_histogram.npy", allow_pickle=True)
+    vtds_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/vtds_pres_histogram.npy", allow_pickle=True)
+    blockgroup_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/blockgroups_pres_histogram.npy", allow_pickle=True)
+    tracts_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/tracts_pres_histogram.npy", allow_pickle=True)
 
     plt.figure(figsize=(10, 4))
 
@@ -51,6 +53,6 @@ def main():
     # plt.ylabel("Count of plans")
     # plt.title("Comparing performance of different census units to neutral ensemble \n 2020 Presidential race, Montana")
     plt.tight_layout()
-     plt.savefig(Path(output_dir) / "winners_bonus_image.png", dpi=600)
+    plt.savefig(Path(output_dir) / "winners_bonus_image.png", dpi=600)
 
 main()

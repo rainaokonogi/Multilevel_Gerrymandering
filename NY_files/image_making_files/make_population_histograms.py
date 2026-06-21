@@ -5,11 +5,13 @@ import json
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
 def main():
-
+    """Creates, for each of the three census units in NY, a histogram of the populations in those units.
+    """
     units_dict = {
         "vtds": {
             "label": "Precincts",
@@ -25,11 +27,8 @@ def main():
         }
     }
 
-def main ():
-    """Creates, for each of the three census units in NY, a histogram of the populations in those units.
-    """
     for block_type in ["vtds", "blockgroups", "tracts"]:
-        graph = Graph.from_json(f"{CURRENT_WORKING_DIRECTORY}/NY_files/dual_graphs/{block_type}_dual_graph.json")
+        graph = Graph.from_json(f"{CURRENT_WORKING_DIRECTORY}/NY_files/dual_graphs/NY_{block_type}_dual_graph.json")
 
         pop = [d["total_pop"] for _, d in graph.nodes(data=True)]
 
@@ -37,10 +36,10 @@ def main ():
 
         bins = bins = np.linspace(0, 10000, 26)
 
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(10, 4))
         sns.histplot(pop,
-                    color=colors_dict[block_type],
-                    label=labels_dict[block_type],
+                    color=units_dict[block_type]["color"],
+                    label=units_dict[block_type]["label"],
                     kde=False,
                     bins=bins)
         plt.xticks(fontsize=20)
@@ -48,12 +47,12 @@ def main ():
 
         plt.ylim(0, 5500)
         plt.xlim(0, 10000)
-        plt.legend()
+        # plt.legend()
         plt.ylabel("")
         plt.tight_layout()
 
-        save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/NY_unit_population_images/{block_type}_populations.png"
-        os.makedirs(save_location, exist_ok=True)
+        save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/NY_unit_population_images/NY_{block_type}_populations.png"
+        os.makedirs(os.path.dirname(save_location), exist_ok=True)
         plt.savefig(save_location, dpi=600)
 
 main()

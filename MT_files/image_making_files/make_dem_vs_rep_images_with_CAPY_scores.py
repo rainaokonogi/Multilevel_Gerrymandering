@@ -80,6 +80,13 @@ def half_edge(
 
     return 0.5 * ((x_x / (x_x + x_y)) + (y_y / (y_y + x_y)))
 
+scale_factors = {
+    "vtds": 0.01,
+    "blockgroups": 0.01,
+    "tracts": 0.01,
+    "counties": 0.001
+}
+
 def main():
     """Creates the following images: for each of four census units in MT, draw the state dual graph
     with nodes scaled by population and colored based on Democratic or Republican affiliation
@@ -102,7 +109,7 @@ def main():
         gdf = gpd.read_file(shp_path)
 
         # Build Graph from JSON
-        graph = Graph.from_json(graph_json)
+        graph = gerrychain.Graph.from_json(graph_json)
 
         # Compute half-edge score
         mt_CAPY_result = half_edge(graph, "PRES20DEM", "PRES20REP")
@@ -171,7 +178,7 @@ def main():
             fontsize=20
         )
         save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/MT_partisan_CAPY_images/dem_vs_rep_pres_{block_type}.png"
-        os.makedirs(save_location, exist_ok=True)
+        os.makedirs(os.path.dirname(save_location), exist_ok=True)
         plt.savefig(save_location, dpi=600)
         plt.close()
 

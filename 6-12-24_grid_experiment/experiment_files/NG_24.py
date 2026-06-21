@@ -10,32 +10,21 @@ import os
 from pyben import PyBenEncoder
 import jsonlines as jl
 
-SCRIPT_FILE_PATH = os.path.abspath(__file__)
-SCRIPT_DIR = os.path.dirname(SCRIPT_FILE_PATH)
-
-# def safe_reward_partial_dist(part, minority_perc_col, threshold):
-#     """Gingleator score function that rewards all opportunity districts plus partial credit for
-#     the next highest district below threshold.
-
-#     As opposed to the function currently present in GerryChain, this function won't throw an
-#     error if no districts are below threshold. If no such district exists, returns number of
-#     opportunity districts.
-
-#     Args:
-#         part (Partition): GerryChain Partition object.
-#         minority_perc_col (str): Column name for minority percentage.
-#         threshold (float): Threshold for minority percentage.
-#     """
-#     try:
-#         return Gingleator.reward_partial_dist(
-#             part=part, minority_perc_col=minority_perc_col, threshold=threshold
-#         )
-#     except ValueError:
-#         return Gingleator.num_opportunity_dists(
-#             part=part, minority_perc_col=minority_perc_col, threshold=threshold
-#         )
+CURRENT_WORKING_DIRECTORY = Path.cwd()
 
 def safe_reward_partial_dist_v2(part, minority_perc_col, threshold=0.5):
+    """Score function that returns the number of districts won by the party being
+    gerrymandered toward + 0.5 * the number of tied districts + the highest percentage of
+    votes that party receives in any losing district.
+
+    As opposed to the reward_partial_dist function currently in GerryChain, this function doesn't throw an
+    error if no districts are below threshold. If no such district exists, returns just wins + ties.
+    
+    Args:
+        part (Partition): GerryChain Partition object.
+        minority_perc_col (str): Column name for gerrymandering party's votes.
+        threshold (float): Threshold for winning a district.
+    """
     try:
         dist_percs = part[minority_perc_col].values()
         num_win_dists = sum(list(map(lambda v: v > threshold, dist_percs)))
@@ -48,23 +37,24 @@ def safe_reward_partial_dist_v2(part, minority_perc_col, threshold=0.5):
         return (num_win_dists + num_tie_dists)
 
 
-def run_experiment_ng_24(assort_score, num_r_units, map_number, block_size, init_part, random_seed, burst_length, total_steps):
+def run_experiment_ng(num_r_units, block_size, init_part, random_seed, burst_length, total_steps):
     """Run experiment where the building blocks are not gerrymandered but the resulting map is.
 
     Args:
-        num_r_units (int): Number of Republican units in underlying map (e.g., 58, 72, 86).
-        map_number (int): Map number to use (1-9).
-        block_size (int): Size of building blocks (e.g., 2, 3, 4, 6).
+        num_r_units (int): Number of Republican units in underlying map (e.g., 18, 21).
+        block_size (int): Size of building blocks (e.g., 1, 2, 3).
         init_part (int): Number of initial district partition to use for Markov chain (1–3)
         random_seed (int): Random seed for reproducibility.
-        total_steps (int): Total number of steps for each chain.
+        party (str): the party being gerrymandered toward — either "D" for blue party or "R" for red party.
+        burst_length (int): Burst length for short bursts algorithm.
+        total_steps (int): Total number of steps for each chain (must be divisible by burst length).
     """
 
     # Load data from underlying map as graph
     # Will use this to put vote totals onto block graph
     underlying_map = (
-        f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/grids_and_blocks/grid_maps/24x24_unit_maps/map_.jsons/"
-        f"{assort_score}_BR_r_units_{num_r_units}_map_{map_number}.json"
+        f"{CURRENT_WORKING_DIRECTORY}/6-12-24_grid_experiment/grids_and_blocks/grid_maps/24x24_units_maps/grids_.jsons/"
+        f"med_BR_score_r_units_{num_r_units}_map_1.json"
     )
     underlying_graph = Graph.from_json(underlying_map)
 
@@ -76,18 +66,18 @@ def run_experiment_ng_24(assort_score, num_r_units, map_number, block_size, init
     for sample in range(1,101):
 
         save_assignment_results_to = (
-            f"/share/duchin/raina/REP_DATA/6-12-24_grid_results/24x24_grid_results/NG/output_ensembles/toward_R/{assort_score}_BR_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
-            f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_steps_{total_steps}_assignment.ben"
+            f"{CURRENT_WORKING_DIRECTORY}/REP_DATA_(replicated)/6-12-24_grid_results_(replicated)/24x24_grid_results/NG/output_ensembles/toward_{party}/med_BR_score_r_units_{num_r_units}_map_1/block_size_{block_size}/"
+            f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_burst_length_{burst_length}_steps_{total_steps}_assignment.ben"
         )
         save_updaters_results_to = (
-            f"/share/duchin/raina/REP_DATA/6-12-24_grid_results/24x24_grid_results/NG/output_updaters/toward_R/{assort_score}_BR_r_units_{num_r_units}_map_{map_number}/block_size_{block_size}/"
-            f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_steps_{total_steps}_updaters.jsonl"
+            f"{CURRENT_WORKING_DIRECTORY}/REP_DATA_(replicated)/6-12-24_grid_results_(replicated)/24x24_grid_results/NG/output_updaters/toward_{party}/med_BR_score_r_units_{num_r_units}_map_1/block_size_{block_size}/"
+            f"sample_{sample}/init_part_{init_part}_random_seed_{random_seed}_burst_length_{burst_length}_steps_{total_steps}_updaters.jsonl"
         )
         os.makedirs(os.path.dirname(save_assignment_results_to), exist_ok=True)
         os.makedirs(os.path.dirname(save_updaters_results_to), exist_ok=True)
 
         block_data = (
-            f"/share/duchin/raina/REPLICATION_REPO/6-12-24_grid_experiment/grids_and_blocks/block_partitions/24_block_partitions/"
+            f"{CURRENT_WORKING_DIRECTORY}/6-12-24_grid_experiment/grids_and_blocks/24_block_partitions/"
             f"block_size_{block_size}/sample_{sample}.json"
         )
 
@@ -128,7 +118,7 @@ def run_experiment_ng_24(assort_score, num_r_units, map_number, block_size, init
             updaters=my_updaters
         )
 
-        # 144 nodes and 12 districts, so pop_target is 12
+        # 576 nodes and 6 districts, so pop_target is 96
         proposal = partial(
             recom,
             pop_col=pop_col,
@@ -146,7 +136,7 @@ def run_experiment_ng_24(assort_score, num_r_units, map_number, block_size, init
             threshold=0.5,
             initial_state=initial_partition,
             total_pop_col='population',
-            minority_pop_col='R_tally',
+            minority_pop_col=f'{party}_tally',
             score_function=safe_reward_partial_dist_v2
         )
 

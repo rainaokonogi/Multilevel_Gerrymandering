@@ -64,12 +64,12 @@ def MT_gerry_exp(block_type, election, party, init_part, random_seed, burst_leng
 
     # Create files to store new results; shouldn't overwrite results already in folder
     save_assignment_results_to = (
-        f"{CURRENT_WORKING_DIRECTORY}/MT_results_(replicated)/gerry/gerry_ensembles/{block_type}/"
+        f"{CURRENT_WORKING_DIRECTORY}/REP_DATA_(replicated)/Montana_results/gerry/gerry_output_ensembles/{block_type}/"
         f"gerry_toward_{party}_using_{election}_data/"
         f"init_part_{init_part}_random_seed_{random_seed}_burst_length_{burst_length}_{total_steps}_steps_assignment.ben"
     )
     save_updaters_results_to = (
-        f"{CURRENT_WORKING_DIRECTORY}/MT_results_(replicated)/gerry/gerry_updaters/{block_type}/"
+        f"{CURRENT_WORKING_DIRECTORY}/REP_DATA_(replicated)/Montana_results/gerry/gerry_output_updaters/{block_type}/"
         f"gerry_toward_{party}_using_{election}_data/"
         f"init_part_{init_part}_random_seed_{random_seed}_burst_length_{burst_length}_{total_steps}_steps_updaters.jsonl"
     )

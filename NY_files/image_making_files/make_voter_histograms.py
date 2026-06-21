@@ -2,22 +2,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import json
 import numpy as np
+from pathlib import Path
+import os
 
 CURRENT_WORKING_DIRECTORY = Path.cwd()
 
 labels = {
     "vtds": "Precincts",
-    "blockgroups", "Block Groups",
-    "tracts", "Tracts"
+    "blockgroups": "Block Groups",
+    "tracts": "Tracts"
 }
 
 def main():
-     """Creates 6 images: for each of the three census units in NY,
+    """Creates 6 images: for each of the three census units in NY,
     histograms of the Democratic vote share in Pres2020 and Sen2022 elections.
     """
-    for block_type in ["blockgroups","vtds","tracts"]:
+    for block_type in ["blockgroups", "vtds", "tracts"]:
         for election in ["PRES20","SEN22"]:
-            with open(f'{CURRENT_WORKING_DIRECTORY}/NY_files/dual_graphs/{block_type}_dual_graph.json') as f:
+            with open(f'{CURRENT_WORKING_DIRECTORY}/NY_files/dual_graphs/NY_{block_type}_dual_graph.json') as f:
                 data = json.load(f)
 
             bins = np.linspace(0, 1, 21)
@@ -52,7 +54,7 @@ def main():
             plt.xticks(np.linspace(0, 1, 11), fontsize=20)
             plt.tight_layout()
             save_location = f"{CURRENT_WORKING_DIRECTORY}/image_replication/NY_voter_histograms/{block_type}_{election}_dem_vote_shares.png"
-            os.makedirs(save_location, exist_ok=True)
+            os.makedirs(os.path.dirname(save_location), exist_ok=True)
             plt.savefig(save_location, dpi=600)
             plt.close()
 

@@ -118,4 +118,4 @@ def main():
             for census_unit in ["vtds","blockgroups","tracts"]:
                 collect_data(census_unit, party, election)
 
-make_image()
+main()

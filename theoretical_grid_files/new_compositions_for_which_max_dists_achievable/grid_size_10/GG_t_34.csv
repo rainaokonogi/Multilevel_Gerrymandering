@@ -1,0 +1,19 @@
+Blue-Blue,Blue-Red,Red-Red,Max Districts Achievable?
+0,34,16,False
+1,32,17,False
+2,30,18,False
+3,28,19,False
+4,26,20,False
+5,24,21,True
+6,22,22,True
+7,20,23,True
+8,18,24,True
+9,16,25,True
+10,14,26,True
+11,12,27,True
+12,10,28,True
+13,8,29,True
+14,6,30,True
+15,4,31,True
+16,2,32,True
+17,0,33,True

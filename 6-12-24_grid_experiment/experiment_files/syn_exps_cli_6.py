@@ -5,21 +5,10 @@ from NG_6 import run_experiment_ng_6
 # Add the choice type to everything.
 @click.command()
 @click.option(
-    "--assort-score",
-    prompt="Low, medium, or high?",
-    help="",
-    type=click.Choice(["low", "med", "high"]),
-)
-@click.option(
     "--num-r-units",
     prompt="Number of red units in underlying map",
     help="",
     type=int,
-)
-@click.option("--map-number",
-    prompt="Which map to use? (1, 2, or 3)",
-    help="",
-    type=click.Choice([1, 2, 3])
 )
 @click.option("--block-size",
     prompt="Which block size? (1, 2, 3, 4, or 6)",
@@ -55,12 +44,12 @@ from NG_6 import run_experiment_ng_6
     help="Number of districting plans per building block graph",
 )
 def main(
-    assort_score, num_r_units, map_number, block_size, experiment_type, init_part, random_seed, burst_length, total_steps
+    num_r_units, block_size, experiment_type, init_part, random_seed, burst_length, total_steps
 ):
     if experiment_type == "NG":
-        run_experiment_ng_6(assort_score, num_r_units, map_number, block_size, init_part, random_seed, burst_length, total_steps)
+        run_experiment_ng_6(num_r_units, block_size, init_part, random_seed, burst_length, total_steps)
     elif experiment_type == "NN":
-        run_experiment_nn_6(assort_score, num_r_units, map_number, block_size, init_part, random_seed, total_steps)
+        run_experiment_nn_6(num_r_units, block_size, init_part, random_seed, total_steps)
 
 if __name__ == "__main__":
     main()

@@ -19,7 +19,7 @@ os.makedirs(output_dir, exist_ok=True)
 units_dict = {
     "vtds": {
         "label": "Precincts",
-        "color": "#76C0D8"
+        "color": "#FFC787"
     },
     "blockgroups": {
         "label": "Block Groups",
@@ -27,7 +27,7 @@ units_dict = {
     },
     "tracts": {
         "label": "Tracts",
-        "color": "#FFC787"
+        "color": "#76C0D8"
     }
 }
 
@@ -85,9 +85,9 @@ def main():
     """
     bins = np.arange(0, 51, 1)
 
-    vtds_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_pres_vtds_histogram.npy", allow_pickle=True)
-    blockgroup_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_pres_blockgroups_histogram.npy", allow_pickle=True)
-    tracts_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/neutral_pres_tracts_histogram.npy", allow_pickle=True)
+    vtds_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/vtds_pres_histogram.npy", allow_pickle=True)
+    blockgroup_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/blockgroups_pres_histogram.npy", allow_pickle=True)
+    tracts_data = np.load(f"{CURRENT_WORKING_DIRECTORY}/MT_files/processed_results_data/neutral_histogram_data/tracts_pres_histogram.npy", allow_pickle=True)
 
     plt.figure(figsize=(10, 4))
 
@@ -167,15 +167,15 @@ def main():
 
     plt.xticks(np.arange(0, 51, 5), fontsize=18)
     plt.yticks([])
-    plt.xlim(0,50)
-    plt.ylim(0, 0.25)
+    plt.xlim(-1,51)
+    plt.ylim(0, 0.35)
+    plt.ylabel("")
     # plt.legend(
     #     handles=legend_elements,
     #     handler_map=handler_map,
     #     loc='upper left',
     #     bbox_to_anchor=(1, 1)
     # )
-    # plt.ylabel("")
     # plt.xlabel("Number of Democratic seats \n (63 possible)")
     # plt.ylabel("Count of plans")
     # plt.title("Comparing performance of different census units to neutral ensemble \n 2020 Presidential race, Montana")

@@ -36,11 +36,11 @@ def MT_neutral_exp(block_type, init_part, random_seed, total_steps):
 
     # Create files to store new results; shouldn't overwrite results already in folder
     save_assignment_results_to = (
-        f"{CURRENT_WORKING_DIRECTORY}/MT_results_(replicated)/neutral/neutral_ensembles/{block_type}/"
+        f"{CURRENT_WORKING_DIRECTORY}/REP_DATA_(replicated)/Montana_results/neutral/neutral_ensembles/{block_type}/"
         f"init_part_{init_part}_random_seed_{random_seed}_{total_steps}_steps_assignment.ben"
     )
     save_updaters_results_to = (
-        f"{CURRENT_WORKING_DIRECTORY}/MT_results_(replicated)/neutral/neutral_updaters/{block_type}/"
+        f"{CURRENT_WORKING_DIRECTORY}/REP_DATA_(replicated)/Montana_results/neutral/neutral_updaters/{block_type}/"
         f"init_part_{init_part}_random_seed_{random_seed}_{total_steps}_steps_updaters.jsonl"
     )
     os.makedirs(os.path.dirname(save_assignment_results_to), exist_ok=True)
